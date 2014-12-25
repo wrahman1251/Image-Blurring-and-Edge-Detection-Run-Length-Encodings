@@ -24,9 +24,12 @@ public class PixImage {
    *  Define any variables associated with a PixImage object here.  These
    *  variables MUST be private.
    */
-  int[][][] image;
-  int w;
-  int h;
+  private int[][][] image;
+  private int w;
+  private int h;
+  private int[][] sobel_x = {{1, 2, 1}, {0, 0, 0}, {-1, -2, -1}};
+  private int[][] sobel_y = {{1, 0, -1}, {2, 0, -2}, {1, 0, -1}};
+
 
 
 
@@ -169,6 +172,8 @@ public class PixImage {
    * @return a blurred version of "this" PixImage.
    */
 
+
+  // A method that runs one iteration of the photo blurring algorithm. Meant to be run within boxBlur() method.
   private PixImage singleBlurIteration() {
       for (int i = 0; i < getWidth(); i++) {
           for(int j = 0; j < getHeight(); j++) {
@@ -260,19 +265,26 @@ public class PixImage {
   }
 
 
+  private PixImage copyPixImage() {
+      PixImage adjusted_image = new PixImage(this.getWidth(), this.getHeight());
+
+      for (int i = 0; i < getWidth(); i++) {
+          for (int j = 0; j < getHeight(); j++) {
+              adjusted_image.setPixel(i, j, getRed(i, j), getGreen(i, j), getBlue(i, j));
+          }
+      }
+      return adjusted_image;
+  }
+
 
   public PixImage boxBlur(int numIterations) {
     // Replace the following line with your solution.
     if (numIterations <= 0) {
         return this;
     } else {
-        PixImage adjusted_image = new PixImage(this.getWidth(), this.getHeight());
+        PixImage adjusted_image = copyPixImage();
 
-        for (int i = 0; i < getWidth(); i++) {
-            for (int j = 0; j < getHeight(); j++) {
-                adjusted_image.setPixel(i, j, getRed(i, j), getGreen(i, j), getBlue(i, j));
-            }
-        }
+
         for (int k = 0; k < numIterations; k++) {
             adjusted_image = adjusted_image.singleBlurIteration();
             k++;
@@ -306,6 +318,266 @@ public class PixImage {
     return intensity;
   }
 
+
+  private int redEnergy(int x, int y) {
+      int[][] neighbors = {{0, 0, 0}, {0, 0, 0,}, {0, 0, 0}};
+
+      neighbors[1][1] = getRed(x, y);
+
+      // top-left corner pixel w/ 4 neighboring pixels
+      if (x == 0 && y == 0) {
+          neighbors[2][1] = getRed(x+1, y);
+          neighbors[1][2] = getRed(x, y+1);
+          neighbors[2][2] = getRed(x+1, y+1);
+
+          // top-right corner pixel w/ 4 neighboring pixels
+      } else if (x == getWidth()-1 && y == 0) {
+          neighbors[0][1] = getRed(x-1, y);
+          neighbors[1][2] = getRed(x, y+1);
+          neighbors[0][2] = getRed(x-1, y+1);
+
+          // bottom-left corner pixel w/ 4 neighboring pixels
+      } else if (x == 0 && y == getHeight()-1) {
+          neighbors[2][1] = getRed(x+1, y);
+          neighbors[1][0] = getRed(x, y-1);
+          neighbors[2][0] = getRed(x+1, y-1);
+
+          // bottom-right corner pixel w/ 4 neighboring pixels
+      } else if (x == getWidth()-1 && y == getHeight()-1) {
+          neighbors[0][1] = getRed(x-1, y);
+          neighbors[1][0] = getRed(x, y-1);
+          neighbors[0][0] = getRed(x-1, y-1);
+
+          // left edge (non-corner) pixel w/ 6 neighboring pixels
+      } else if (x == 0) {
+          neighbors[2][1] = getRed(x+1, y);
+          neighbors[1][0] = getRed(x, y-1);
+          neighbors[2][0] = getRed(x+1, y-1);
+          neighbors[1][2] = getRed(x, y+1);
+          neighbors[2][2] = getRed(x+1, y+1);
+
+          // right edge (non-corner) pixel w/ 6 neighboring pixels
+      } else if (x == getWidth() - 1) {
+          neighbors[0][1] = getRed(x-1, y);
+          neighbors[1][2] = getRed(x, y+1);
+          neighbors[0][2] = getRed(x-1, y+1);
+          neighbors[1][0] = getRed(x, y-1);
+          neighbors[0][0] = getRed(x-1, y-1);
+
+          // top edge (non-corner) pixel w/ 6 neighboring pixels
+      } else if (y == 0) {
+          neighbors[0][1] = getRed(x-1, y);
+          neighbors[1][2] = getRed(x, y+1);
+          neighbors[0][2] = getRed(x-1, y+1);
+          neighbors[2][1] = getRed(x+1, y);
+          neighbors[2][2] = getRed(x+1, y+1);
+
+          // bottom edge (non-corner) pixel w/ 6 neighboring pixels
+      } else if (y == getHeight()-1) {
+          neighbors[0][1] = getRed(x-1, y);
+          neighbors[1][0] = getRed(x, y-1);
+          neighbors[0][0] = getRed(x-1, y-1);
+          neighbors[2][1] = getRed(x+1, y);
+          neighbors[2][0] = getRed(x+1, y-1);
+
+          // typical non-edge pixels w/ 9 neighboring pixels
+      } else {
+          neighbors[0][1] = getRed(x-1, y);
+          neighbors[1][2] = getRed(x, y+1);
+          neighbors[0][2] = getRed(x-1, y+1);
+          neighbors[1][0] = getRed(x, y-1);
+          neighbors[0][0] = getRed(x-1, y-1);
+          neighbors[2][1] = getRed(x+1, y);
+          neighbors[2][0] = getRed(x+1, y-1);
+          neighbors[2][2] = getRed(x+1, y+1);
+
+      }
+      //Find Gradients
+      int g_x = 0;
+      int g_y = 0;
+      for (int i = 0; i < 3; i++) {
+          for (int j = 0; j < 3; j++) {
+              g_x += neighbors[i][j] * sobel_x[i][j];
+              g_y += neighbors[i][j] * sobel_y[i][j];
+          }
+      }
+      int energy = (g_x * g_x) + (g_y * g_y);
+      return energy;
+  }
+
+  private int greenEnergy(int x, int y) {
+        int[][] neighbors = {{0, 0, 0}, {0, 0, 0,}, {0, 0, 0}};
+
+        neighbors[1][1] = getGreen(x, y);
+
+        // top-left corner pixel w/ 4 neighboring pixels
+        if (x == 0 && y == 0) {
+            neighbors[2][1] = getGreen(x + 1, y);
+            neighbors[1][2] = getGreen(x, y + 1);
+            neighbors[2][2] = getGreen(x + 1, y + 1);
+
+            // top-right corner pixel w/ 4 neighboring pixels
+        } else if (x == getWidth()-1 && y == 0) {
+            neighbors[0][1] = getGreen(x - 1, y);
+            neighbors[1][2] = getGreen(x, y + 1);
+            neighbors[0][2] = getGreen(x - 1, y + 1);
+
+            // bottom-left corner pixel w/ 4 neighboring pixels
+        } else if (x == 0 && y == getHeight()-1) {
+            neighbors[2][1] = getGreen(x + 1, y);
+            neighbors[1][0] = getGreen(x, y - 1);
+            neighbors[2][0] = getGreen(x + 1, y - 1);
+
+            // bottom-right corner pixel w/ 4 neighboring pixels
+        } else if (x == getWidth()-1 && y == getHeight()-1) {
+            neighbors[0][1] = getGreen(x - 1, y);
+            neighbors[1][0] = getGreen(x, y - 1);
+            neighbors[0][0] = getGreen(x - 1, y - 1);
+
+            // left edge (non-corner) pixel w/ 6 neighboring pixels
+        } else if (x == 0) {
+            neighbors[2][1] = getGreen(x + 1, y);
+            neighbors[1][0] = getGreen(x, y - 1);
+            neighbors[2][0] = getGreen(x + 1, y - 1);
+            neighbors[1][2] = getGreen(x, y + 1);
+            neighbors[2][2] = getGreen(x + 1, y + 1);
+
+            // right edge (non-corner) pixel w/ 6 neighboring pixels
+        } else if (x == getWidth() - 1) {
+            neighbors[0][1] = getGreen(x - 1, y);
+            neighbors[1][2] = getGreen(x, y + 1);
+            neighbors[0][2] = getGreen(x - 1, y + 1);
+            neighbors[1][0] = getGreen(x, y - 1);
+            neighbors[0][0] = getGreen(x - 1, y - 1);
+
+            // top edge (non-corner) pixel w/ 6 neighboring pixels
+        } else if (y == 0) {
+            neighbors[0][1] = getGreen(x - 1, y);
+            neighbors[1][2] = getGreen(x, y + 1);
+            neighbors[0][2] = getGreen(x - 1, y + 1);
+            neighbors[2][1] = getGreen(x + 1, y);
+            neighbors[2][2] = getGreen(x + 1, y + 1);
+
+            // bottom edge (non-corner) pixel w/ 6 neighboring pixels
+        } else if (y == getHeight()-1) {
+            neighbors[0][1] = getGreen(x - 1, y);
+            neighbors[1][0] = getGreen(x, y - 1);
+            neighbors[0][0] = getGreen(x - 1, y - 1);
+            neighbors[2][1] = getGreen(x + 1, y);
+            neighbors[2][0] = getGreen(x + 1, y - 1);
+
+            // typical non-edge pixels w/ 9 neighboring pixels
+        } else {
+            neighbors[0][1] = getGreen(x - 1, y);
+            neighbors[1][2] = getGreen(x, y + 1);
+            neighbors[0][2] = getGreen(x - 1, y + 1);
+            neighbors[1][0] = getGreen(x, y - 1);
+            neighbors[0][0] = getGreen(x - 1, y - 1);
+            neighbors[2][1] = getGreen(x + 1, y);
+            neighbors[2][0] = getGreen(x + 1, y - 1);
+            neighbors[2][2] = getGreen(x + 1, y + 1);
+
+        }
+        //Find Gradients
+        int g_x = 0;
+        int g_y = 0;
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                g_x += neighbors[i][j] * sobel_x[i][j];
+                g_y += neighbors[i][j] * sobel_y[i][j];
+            }
+        }
+        int energy = (g_x * g_x) + (g_y * g_y);
+        return energy;
+  }
+
+  private int blueEnergy(int x, int y) {
+        int[][] neighbors = {{0, 0, 0}, {0, 0, 0,}, {0, 0, 0}};
+
+        neighbors[1][1] = getBlue(x, y);
+
+        // top-left corner pixel w/ 4 neighboring pixels
+        if (x == 0 && y == 0) {
+            neighbors[2][1] = getBlue(x + 1, y);
+            neighbors[1][2] = getBlue(x, y + 1);
+            neighbors[2][2] = getBlue(x + 1, y + 1);
+
+            // top-right corner pixel w/ 4 neighboring pixels
+        } else if (x == getWidth()-1 && y == 0) {
+            neighbors[0][1] = getBlue(x - 1, y);
+            neighbors[1][2] = getBlue(x, y + 1);
+            neighbors[0][2] = getBlue(x - 1, y + 1);
+
+            // bottom-left corner pixel w/ 4 neighboring pixels
+        } else if (x == 0 && y == getHeight()-1) {
+            neighbors[2][1] = getBlue(x + 1, y);
+            neighbors[1][0] = getBlue(x, y - 1);
+            neighbors[2][0] = getBlue(x + 1, y - 1);
+
+            // bottom-right corner pixel w/ 4 neighboring pixels
+        } else if (x == getWidth()-1 && y == getHeight()-1) {
+            neighbors[0][1] = getBlue(x - 1, y);
+            neighbors[1][0] = getBlue(x, y - 1);
+            neighbors[0][0] = getBlue(x - 1, y - 1);
+
+            // left edge (non-corner) pixel w/ 6 neighboring pixels
+        } else if (x == 0) {
+            neighbors[2][1] = getBlue(x + 1, y);
+            neighbors[1][0] = getBlue(x, y - 1);
+            neighbors[2][0] = getBlue(x + 1, y - 1);
+            neighbors[1][2] = getBlue(x, y + 1);
+            neighbors[2][2] = getBlue(x + 1, y + 1);
+
+            // right edge (non-corner) pixel w/ 6 neighboring pixels
+        } else if (x == getWidth() - 1) {
+            neighbors[0][1] = getBlue(x - 1, y);
+            neighbors[1][2] = getBlue(x, y + 1);
+            neighbors[0][2] = getBlue(x - 1, y + 1);
+            neighbors[1][0] = getBlue(x, y - 1);
+            neighbors[0][0] = getBlue(x - 1, y - 1);
+
+            // top edge (non-corner) pixel w/ 6 neighboring pixels
+        } else if (y == 0) {
+            neighbors[0][1] = getBlue(x - 1, y);
+            neighbors[1][2] = getBlue(x, y + 1);
+            neighbors[0][2] = getBlue(x - 1, y + 1);
+            neighbors[2][1] = getBlue(x + 1, y);
+            neighbors[2][2] = getBlue(x + 1, y + 1);
+
+            // bottom edge (non-corner) pixel w/ 6 neighboring pixels
+        } else if (y == getHeight()-1) {
+            neighbors[0][1] = getBlue(x - 1, y);
+            neighbors[1][0] = getBlue(x, y - 1);
+            neighbors[0][0] = getBlue(x - 1, y - 1);
+            neighbors[2][1] = getBlue(x + 1, y);
+            neighbors[2][0] = getBlue(x + 1, y - 1);
+
+            // typical non-edge pixels w/ 9 neighboring pixels
+        } else {
+            neighbors[0][1] = getBlue(x - 1, y);
+            neighbors[1][2] = getBlue(x, y + 1);
+            neighbors[0][2] = getBlue(x - 1, y + 1);
+            neighbors[1][0] = getBlue(x, y - 1);
+            neighbors[0][0] = getBlue(x - 1, y - 1);
+            neighbors[2][1] = getBlue(x + 1, y);
+            neighbors[2][0] = getBlue(x + 1, y - 1);
+            neighbors[2][2] = getBlue(x + 1, y + 1);
+
+        }
+        //Find Gradients
+        int g_x = 0;
+        int g_y = 0;
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                g_x += neighbors[i][j] * sobel_x[i][j];
+                g_y += neighbors[i][j] * sobel_y[i][j];
+            }
+        }
+        int energy = (g_x * g_x) + (g_y * g_y);
+        return energy;
+  }
+
+
   /**
    * sobelEdges() applies the Sobel operator, identifying edges in "this"
    * image.  The Sobel operator computes a magnitude that represents how
@@ -322,8 +594,15 @@ public class PixImage {
    * Whiter pixels represent stronger edges.
    */
   public PixImage sobelEdges() {
-    // Replace the following line with your solution.
-    return this;
+    PixImage adjusted = copyPixImage();
+    int energy;
+    for (int i = 0; i < getWidth(); i++) {
+        for (int j = 0; j < getHeight(); j++) {
+            energy = redEnergy(i, j) + greenEnergy(i, j) + blueEnergy(i, j);
+            adjusted.setPixel(i, j, mag2gray(energy), mag2gray(energy), mag2gray(energy));
+        }
+    }
+    return adjusted;
     // Don't forget to use the method mag2gray() above to convert energies to
     // pixel intensities.
   }
