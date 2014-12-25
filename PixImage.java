@@ -1,5 +1,6 @@
 /* PixImage.java */
 
+import java.lang.System;
 import java.util.Arrays;
 
 /**
@@ -42,7 +43,7 @@ public class PixImage {
     h = height;
     image = new int[width][height][3];
     for (int i = 0; i < getWidth(); i++) {
-        for(int j = 0; i < getHeight(); j++) {
+        for(int j = 0; j < getHeight(); j++) {
           setPixel(i, j, (short) 0, (short) 0, (short) 0);
         }
       }
@@ -135,7 +136,7 @@ public class PixImage {
    */
   public String toString() {
     // Replace the following line with your solution.
-    return Arrays.toString(image);
+    return Arrays.deepToString(image);
   }
 
   /**
@@ -167,87 +168,116 @@ public class PixImage {
    * @param numIterations the number of iterations of box blurring.
    * @return a blurred version of "this" PixImage.
    */
+
+  private PixImage singleBlurIteration() {
+      for (int i = 0; i < getWidth(); i++) {
+          for(int j = 0; j < getHeight(); j++) {
+
+              // top-left corner pixel w/ 4 neighboring pixels
+              if (i == 0 && j == 0) {
+                  short new_red = (short)((getRed(i, j) + getRed(i+1, j) + getRed(i, j+1) + getRed(i+1, j+1)) / 4);
+                  short new_green = (short)((getGreen(i, j) + getGreen(i+1, j) + getGreen(i, j+1) + getGreen(i+1, j+1)) / 4);
+                  short new_blue = (short)((getBlue(i, j) + getBlue(i+1, j) + getBlue(i, j+1) + getBlue(i+1, j+1)) / 4);
+                  setPixel(i, j, new_red, new_green, new_blue);
+
+                  // top-right corner pixel w/ 4 neighboring pixels
+              } else if (i == getWidth()-1 && j == 0) {
+                  short new_red = (short)((getRed(i, j) + getRed(i-1, j) + getRed(i, j+1) + getRed(i-1, j+1)) / 4);
+                  short new_green = (short)((getGreen(i, j) + getGreen(i-1, j) + getGreen(i, j+1) + getGreen(i-1, j+1)) / 4);
+                  short new_blue = (short)((getBlue(i, j) + getBlue(i-1, j) + getBlue(i, j+1) + getBlue(i-1, j+1)) / 4);
+                  setPixel(i, j, new_red, new_green, new_blue);
+
+                  // bottom-left corner pixel w/ 4 neighboring pixels
+              } else if (i == 0 && j == getHeight()-1) {
+                  short new_red = (short)((getRed(i, j) + getRed(i+1, j) + getRed(i, j-1) + getRed(i+1, j-1)) / 4);
+                  short new_green = (short)((getGreen(i, j) + getGreen(i+1, j) + getGreen(i, j-1) + getGreen(i+1, j-1)) / 4);
+                  short new_blue = (short)((getBlue(i, j) + getBlue(i+1, j) + getBlue(i, j-1) + getBlue(i+1, j-1)) / 4);
+                  setPixel(i, j, new_red, new_green, new_blue);
+
+                  // bottom-right corner pixel w/ 4 neighboring pixels
+              } else if (i == getWidth()-1 && j == getHeight()-1) {
+                  short new_red = (short)((getRed(i, j) + getRed(i-1, j) + getRed(i, j-1) + getRed(i-1, j-1)) / 4);
+                  short new_green = (short)((getGreen(i, j) + getGreen(i-1, j) + getGreen(i, j-1) + getGreen(i-1, j-1)) / 4);
+                  short new_blue = (short)((getBlue(i, j) + getBlue(i-1, j) + getBlue(i, j-1) + getBlue(i-1, j-1)) / 4);
+                  setPixel(i, j, new_red, new_green, new_blue);
+
+                  // left edge (non-corner) pixel w/ 6 neighboring pixels
+              } else if (i == 0) {
+                  short new_red = (short)((getRed(i, j) + getRed(i, j-1) + getRed(i+1, j) + getRed(i, j+1)
+                          + getRed(i+1, j-1) + getRed(i+1, j+1)) / 6);
+                  short new_green = (short)((getGreen(i, j) + getGreen(i, j-1) + getGreen(i+1, j) + getGreen(i, j+1)
+                          + getGreen(i+1, j-1) + getGreen(i+1, j+1)) / 6);
+                  short new_blue = (short)((getBlue(i, j) + getBlue(i, j-1) + getBlue(i+1, j) + getBlue(i, j+1)
+                          + getBlue(i+1, j-1) + getBlue(i+1, j+1)) / 6);
+                  setPixel(i, j, new_red, new_green, new_blue);
+
+                  // right edge (non-corner) pixel w/ 6 neighboring pixels
+              } else if (i == getWidth() - 1) {
+                  short new_red = (short)((getRed(i, j) + getRed(i, j-1) + getRed(i-1, j) + getRed(i, j+1)
+                          + getRed(i-1, j-1) + getRed(i-1, j+1)) / 6);
+                  short new_green = (short)((getGreen(i, j) + getGreen(i, j-1) + getGreen(i-1, j) + getGreen(i, j+1)
+                          + getGreen(i-1, j-1) + getGreen(i-1, j+1)) / 6);
+                  short new_blue = (short)((getBlue(i, j) + getBlue(i, j-1) + getBlue(i-1, j) + getBlue(i, j+1)
+                          + getBlue(i-1, j-1) + getBlue(i-1, j+1)) / 6);
+                  setPixel(i, j, new_red, new_green, new_blue);
+
+                  // top edge (non-corner) pixel w/ 6 neighboring pixels
+              } else if (j == 0) {
+                  short new_red = (short)((getRed(i, j) + getRed(i-1, j) + getRed(i, j+1) + getRed(i+1, j)
+                          + getRed(i-1, j+1) + getRed(i+1, j+1)) / 6);
+                  short new_green = (short)((getGreen(i, j) + getGreen(i-1, j) + getGreen(i, j+1) + getGreen(i+1, j)
+                          + getGreen(i-1, j+1) + getGreen(i+1, j+1)) / 6);
+                  short new_blue = (short)((getBlue(i, j) + getBlue(i-1, j) + getBlue(i, j+1) + getBlue(i+1, j)
+                          + getBlue(i-1, j+1) + getBlue(i+1, j+1)) / 6);
+                  setPixel(i, j, new_red, new_green, new_blue);
+
+                  // bottom edge (non-corner) pixel w/ 6 neighboring pixels
+              } else if (j == getHeight()-1) {
+                  short new_red = (short)((getRed(i, j) + getRed(i-1, j) + getRed(i, j-1) + getRed(i+1, j)
+                          + getRed(i-1, j-1) + getRed(i+1, j-1)) / 6);
+                  short new_green = (short)((getGreen(i, j) + getGreen(i-1, j) + getGreen(i, j-1) + getGreen(i+1, j)
+                          + getGreen(i-1, j-1) + getGreen(i+1, j-1)) / 6);
+                  short new_blue = (short)((getBlue(i, j) + getBlue(i-1, j) + getBlue(i, j-1) + getBlue(i+1, j)
+                          + getBlue(i-1, j-1) + getBlue(i+1, j-1)) / 6);
+                  setPixel(i, j, new_red, new_green, new_blue);
+
+                  // typical non-edge pixels w/ 9 neighboring pixels
+              } else {
+                  short new_red = (short)((getRed(i, j) + getRed(i-1, j) + getRed(i, j-1) + getRed(i+1, j) + getRed(i-1, j-1)
+                          + getRed(i+1, j-1) + getRed(i, j+1) + getRed(i-1, j+1) + getRed(i+1, j+1)) / 9);
+                  short new_green = (short)((getGreen(i, j) + getGreen(i-1, j) + getGreen(i, j-1) + getGreen(i+1, j)
+                          + getGreen(i-1, j-1) + getGreen(i+1, j-1) + getGreen(i, j+1) + getGreen(i-1, j+1)
+                          + getGreen(i+1, j+1))/ 9);
+                  short new_blue = (short)((getBlue(i, j) + getBlue(i-1, j) + getBlue(i, j-1) + getBlue(i+1, j)
+                          + getBlue(i-1, j-1) + getBlue(i+1, j-1) + getBlue(i, j+1) + getBlue(i-1, j+1)
+                          + getBlue(i+1, j+1)) / 9);
+                  setPixel(i, j, new_red, new_green, new_blue);
+
+              }
+          }
+      }
+      return this;
+  }
+
+
+
   public PixImage boxBlur(int numIterations) {
     // Replace the following line with your solution.
     if (numIterations <= 0) {
-      return this;
+        return this;
     } else {
-      PixImage adjusted_image = new PixImage(this.getWidth(), this.getHeight());
-      for (int k = 0; k < numIterations; k++) {
+        PixImage adjusted_image = new PixImage(this.getWidth(), this.getHeight());
+
         for (int i = 0; i < getWidth(); i++) {
-          for(int j = 0; i < getHeight(); j++) {
-
-            // top-left corner pixel w/ 4 neighboring pixels
-            if (i == 0 && j == 0) {
-              short new_red = (short)((getRed(i, j) + getRed(i+1, j) + getRed(i, j+1) + getRed(i+1, j+1)) / 4);
-              short new_green = (short)((getGreen(i, j) + getGreen(i+1, j) + getGreen(i, j+1) + getGreen(i+1, j+1)) / 4);
-              short new_blue = (short)((getBlue(i, j) + getBlue(i+1, j) + getBlue(i, j+1) + getBlue(i+1, j+1)) / 4);
-              adjusted_image.setPixel(i, j, new_red, new_green, new_blue);
-
-              // top-right corner pixel w/ 4 neighboring pixels
-            } else if (i == getWidth()-1 && j == 0) {
-              short new_red = (short)((getRed(i, j) + getRed(i-1, j) + getRed(i, j+1) + getRed(i-1, j+1)) / 4);
-              short new_green = (short)((getGreen(i, j) + getGreen(i-1, j) + getGreen(i, j+1) + getGreen(i-1, j+1)) / 4);
-              short new_blue = (short)((getBlue(i, j) + getBlue(i-1, j) + getBlue(i, j+1) + getBlue(i-1, j+1)) / 4);
-              adjusted_image.setPixel(i, j, new_red, new_green, new_blue);
-
-              // bottom-left corner pixel w/ 4 neighboring pixels
-            } else if (i == 0 && j == getHeight()-1) {
-              short new_red = (short)((getRed(i, j) + getRed(i+1, j) + getRed(i, j-1) + getRed(i+1, j-1)) / 4);
-              short new_green = (short)((getGreen(i, j) + getGreen(i+1, j) + getGreen(i, j-1) + getGreen(i+1, j-1)) / 4);
-              short new_blue = (short)((getBlue(i, j) + getBlue(i+1, j) + getBlue(i, j-1) + getBlue(i+1, j-1)) / 4);
-              adjusted_image.setPixel(i, j, new_red, new_green, new_blue);
-
-              // bottom-right corner pixel w/ 4 neighboring pixels
-            } else if (i == getWidth()-1 && j == getHeight()-1) {
-              short new_red = (short)((getRed(i, j) + getRed(i-1, j) + getRed(i, j-1) + getRed(i-1, j-1)) / 4);
-              short new_green = (short)((getGreen(i, j) + getGreen(i-1, j) + getGreen(i, j-1) + getGreen(i-1, j-1)) / 4);
-              short new_blue = (short)((getBlue(i, j) + getBlue(i-1, j) + getBlue(i, j-1) + getBlue(i-1, j-1)) / 4);
-              adjusted_image.setPixel(i, j, new_red, new_green, new_blue);
-
-              // left edge (non-corner) pixel w/ 6 neighboring pixels
-            } else if (i == 0) {
-              short new_red = (short)((getRed(i, j) + getRed(i, j-1) + getRed(i+1, j) + getRed(i, j+1)) + getRed(i+1, j-1) + getRed(i+1, j+1) / 6);
-              short new_green = (short)((getGreen(i, j) + getGreen(i, j-1) + getGreen(i+1, j) + getGreen(i, j+1)) + getGreen(i+1, j-1) + getGreen(i+1, j+1) / 6);
-              short new_blue = (short)((getBlue(i, j) + getBlue(i, j-1) + getBlue(i+1, j) + getBlue(i, j+1)) + getBlue(i+1, j-1) + getBlue(i+1, j+1) / 6);
-              adjusted_image.setPixel(i, j, new_red, new_green, new_blue);
-
-              // right edge (non-corner) pixel w/ 6 neighboring pixels
-            } else if (i == getWidth() - 1) {
-              short new_red = (short)((getRed(i, j) + getRed(i, j-1) + getRed(i-1, j) + getRed(i, j+1)) + getRed(i-1, j-1) + getRed(i-1, j+1) / 6);
-              short new_green = (short)((getGreen(i, j) + getGreen(i, j-1) + getGreen(i-1, j) + getGreen(i, j+1)) + getGreen(i-1, j-1) + getGreen(i-1, j+1) / 6);
-              short new_blue = (short)((getBlue(i, j) + getBlue(i, j-1) + getBlue(i-1, j) + getBlue(i, j+1)) + getBlue(i-1, j-1) + getBlue(i-1, j+1) / 6);
-              adjusted_image.setPixel(i, j, new_red, new_green, new_blue);
-
-              // top edge (non-corner) pixel w/ 6 neighboring pixels
-            } else if (j == 0) {
-              short new_red = (short)((getRed(i, j) + getRed(i-1, j) + getRed(i, j+1) + getRed(i+1, j)) + getRed(i-1, j+1) + getRed(i+1, j+1) / 6);
-              short new_green = (short)((getGreen(i, j) + getGreen(i-1, j) + getGreen(i, j+1) + getGreen(i+1, j)) + getGreen(i-1, j+1) + getGreen(i+1, j+1) / 6);
-              short new_blue = (short)((getBlue(i, j) + getBlue(i-1, j) + getBlue(i, j+1) + getBlue(i+1, j)) + getBlue(i-1, j+1) + getBlue(i+1, j+1) / 6);
-              adjusted_image.setPixel(i, j, new_red, new_green, new_blue);
-
-              // bottom edge (non-corner) pixel w/ 6 neighboring pixels
-            } else if (j == getHeight()-1) {
-              short new_red = (short)((getRed(i, j) + getRed(i-1, j) + getRed(i, j-1) + getRed(i+1, j)) + getRed(i-1, j-1) + getRed(i+1, j-1) / 6);
-              short new_green = (short)((getGreen(i, j) + getGreen(i-1, j) + getGreen(i, j-1) + getGreen(i+1, j)) + getGreen(i-1, j-1) + getGreen(i+1, j-1) / 6);
-              short new_blue = (short)((getBlue(i, j) + getBlue(i-1, j) + getBlue(i, j-1) + getBlue(i+1, j)) + getBlue(i-1, j-1) + getBlue(i+1, j-1) / 6);
-              adjusted_image.setPixel(i, j, new_red, new_green, new_blue);
-
-              // typical non-edge pixels w/ 9 neighboring pixels
-            } else {
-              short new_red = (short)((getRed(i, j) + getRed(i-1, j) + getRed(i, j-1) + getRed(i+1, j) + getRed(i-1, j-1) 
-                + getRed(i+1, j-1) + getRed(i, j+1) + getRed(i-1, j+1) + getRed(i+1, j+1)) / 9);
-              short new_green = (short)((getGreen(i, j) + getGreen(i-1, j) + getGreen(i, j-1) + getGreen(i+1, j) + getGreen(i-1, j-1)
-               + getGreen(i+1, j-1) + getGreen(i, j+1) + getGreen(i-1, j+1) + getGreen(i+1, j+1))/ 9);
-              short new_blue = (short)((getBlue(i, j) + getBlue(i-1, j) + getBlue(i, j-1) + getBlue(i+1, j) + getBlue(i-1, j-1)
-               + getBlue(i+1, j-1) + getBlue(i, j+1) + getBlue(i-1, j+1) + getBlue(i+1, j+1)) / 9);
-              adjusted_image.setPixel(i, j, new_red, new_green, new_blue);
-
+            for (int j = 0; j < getHeight(); j++) {
+                adjusted_image.setPixel(i, j, getRed(i, j), getGreen(i, j), getBlue(i, j));
             }
-          }
         }
-      }
-      return adjusted_image;
+        for (int k = 0; k < numIterations; k++) {
+            adjusted_image = adjusted_image.singleBlurIteration();
+            k++;
+        }
+        return adjusted_image;
     }
   }
 
