@@ -2,8 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="9b906056-f2a0-4ce9-9bd5-7e7b624412a5" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/PixImage.class" afterPath="$PROJECT_DIR$/PixImage.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/PixImage.java" afterPath="$PROJECT_DIR$/PixImage.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="Image-Blurring-and-Edge-Detection-Run-Length-Encodings.iws" />
@@ -27,14 +25,34 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="PixImage.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="RunLengthEncoding.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/RunLengthEncoding.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="6255">
+              <caret line="25" column="13" selection-start-line="25" selection-start-column="13" selection-end-line="25" selection-end-column="13" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="PixImage.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/PixImage.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.5164319" vertical-offset="10050" max-vertical-offset="12930">
-              <caret line="692" column="60" selection-start-line="692" selection-start-column="60" selection-end-line="692" selection-end-column="60" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="11631" max-vertical-offset="12930">
+              <caret line="674" column="3" selection-start-line="674" selection-start-column="3" selection-end-line="674" selection-end-column="3" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="DList.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/DList.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.09389672" vertical-offset="0" max-vertical-offset="639">
+              <caret line="4" column="1" selection-start-line="4" selection-start-column="1" selection-end-line="4" selection-end-column="1" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -53,6 +71,7 @@
     <option name="changedFiles">
       <list>
         <option value="$PROJECT_DIR$/PixImage.java" />
+        <option value="$PROJECT_DIR$/DList.java" />
       </list>
     </option>
   </component>
@@ -359,12 +378,12 @@
       <changelist id="9b906056-f2a0-4ce9-9bd5-7e7b624412a5" name="Default" comment="" />
       <created>1419386302324</created>
       <updated>1419386302324</updated>
-      <workItem from="1419386302650" duration="55760000" />
+      <workItem from="1419386302650" duration="57287000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="55760000" />
+    <option name="totallyTimeSpent" value="57287000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="8" y="27" width="1260" height="736" extended-state="0" />
@@ -506,13 +525,29 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/RunLengthEncoding.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="15" max-vertical-offset="6255">
+          <caret line="25" column="13" selection-start-line="25" selection-start-column="13" selection-end-line="25" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/PixImage.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.5164319" vertical-offset="10050" max-vertical-offset="12930">
-          <caret line="692" column="60" selection-start-line="692" selection-start-column="60" selection-end-line="692" selection-end-column="60" />
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="12930">
+          <caret line="674" column="3" selection-start-line="674" selection-start-column="3" selection-end-line="674" selection-end-column="3" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/DList.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.09389672" vertical-offset="0" max-vertical-offset="639">
+          <caret line="4" column="1" selection-start-line="4" selection-start-column="1" selection-end-line="4" selection-end-column="1" />
+          <folding />
         </state>
       </provider>
     </entry>
