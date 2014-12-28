@@ -30,7 +30,9 @@ public class RunLengthEncoding implements Iterable {
    *  These variables MUST be private.
    */
 
-
+    private DList red;
+    private DList green;
+    private DList blue;
 
 
   /**
