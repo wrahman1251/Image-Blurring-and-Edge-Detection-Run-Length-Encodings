@@ -30,9 +30,8 @@ public class RunLengthEncoding implements Iterable {
    *  These variables MUST be private.
    */
 
-    private DList red;
-    private DList green;
-    private DList blue;
+    private Run head;
+    private int size = 0;
 
 
   /**
@@ -50,6 +49,9 @@ public class RunLengthEncoding implements Iterable {
 
   public RunLengthEncoding(int width, int height) {
     // Your solution here.
+      head = new Run(0, 0, 0, 0); //sentinel run
+      Run new_run = new Run((width*height), 0, 0, 0, head, head);
+      size++;
   }
 
   /**
@@ -76,6 +78,13 @@ public class RunLengthEncoding implements Iterable {
   public RunLengthEncoding(int width, int height, int[] red, int[] green,
                            int[] blue, int[] runLengths) {
     // Your solution here.
+      head = new Run(0, 0, 0, 0); //sentinel run
+      head.next = new Run(runLengths[0], red[0], green[0], blue[0], head, head);
+      head.prev = head.next;
+      for(int i = 1; i < width * height; i++) {
+          head.prev = new Run(runLengths[i], red[i], green[i], blue[i], head, head.prev);
+          head.prev.prev.next = head.prev;
+      }
   }
 
   /**
