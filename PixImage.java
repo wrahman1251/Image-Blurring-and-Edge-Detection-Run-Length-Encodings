@@ -27,8 +27,8 @@ public class PixImage {
   private int[][][] image;
   private int w;
   private int h;
-  private int[][] sobel_x = {{1, 2, 1}, {0, 0, 0}, {-1, -2, -1}};
-  private int[][] sobel_y = {{1, 0, -1}, {2, 0, -2}, {1, 0, -1}};
+  private static int[][] sobel_x = {{1, 2, 1}, {0, 0, 0}, {-1, -2, -1}};
+  private static int[][] sobel_y = {{1, 0, -1}, {2, 0, -2}, {1, 0, -1}};
 
 
 
@@ -126,6 +126,26 @@ public class PixImage {
     image[x][y][0] = red;
     image[x][y][1] = green;
     image[x][y][2] = blue;
+  }
+
+  public int nextPixelX(int x, int y) {
+      if (x == w-1 && y == h-1) {
+          return -1;
+      } else if (x == w-1) {
+          return 0;
+      } else {
+          return x + 1;
+      }
+  }
+
+  public int nextPixelY(int x, int y) {
+      if (x == w-1 && y == h-1) {
+          return -1;
+      } else if (x == w-1) {
+          return y + 1;
+      } else {
+          return y;
+      }
   }
 
   /**

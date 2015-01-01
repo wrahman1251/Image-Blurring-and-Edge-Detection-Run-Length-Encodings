@@ -12,8 +12,8 @@ public class Run {
         this.red = red;
         this.green = green;
         this.blue = blue;
-        next = null;
-        prev = null;
+        next = this;
+        prev = this;
     }
 
     public Run(int run_length, int red, int green, int blue, Run next, Run prev) {

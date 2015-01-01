@@ -21,6 +21,7 @@
  *  See the README file accompanying this project for additional details.
  */
 
+import java.util.Arrays;
 import java.util.Iterator;
 
 public class RunLengthEncoding implements Iterable {
@@ -32,6 +33,9 @@ public class RunLengthEncoding implements Iterable {
 
     private Run head;
     private int size = 0;
+
+    private int width;
+    private int height;
 
 
   /**
@@ -49,8 +53,11 @@ public class RunLengthEncoding implements Iterable {
 
   public RunLengthEncoding(int width, int height) {
     // Your solution here.
+      this.width = width;
+      this.height = height;
       head = new Run(0, 0, 0, 0); //sentinel run
-      Run new_run = new Run((width*height), 0, 0, 0, head, head);
+      head.next = new Run((width*height), 0, 0, 0, head, head);
+      head.prev = head.next;
       size++;
   }
 
@@ -78,6 +85,8 @@ public class RunLengthEncoding implements Iterable {
   public RunLengthEncoding(int width, int height, int[] red, int[] green,
                            int[] blue, int[] runLengths) {
     // Your solution here.
+      this.width = width;
+      this.height = height;
       head = new Run(0, 0, 0, 0); //sentinel run
       head.next = new Run(runLengths[0], red[0], green[0], blue[0], head, head);
       head.prev = head.next;
@@ -96,7 +105,7 @@ public class RunLengthEncoding implements Iterable {
 
   public int getWidth() {
     // Replace the following line with your solution.
-    return 1;
+    return width;
   }
 
   /**
@@ -107,7 +116,7 @@ public class RunLengthEncoding implements Iterable {
    */
   public int getHeight() {
     // Replace the following line with your solution.
-    return 1;
+    return height;
   }
 
   /**
@@ -119,7 +128,7 @@ public class RunLengthEncoding implements Iterable {
    */
   public RunIterator iterator() {
     // Replace the following line with your solution.
-    return null;
+    return new RunIterator(head.next);
     // You'll want to construct a new RunIterator, but first you'll need to
     // write a constructor in the RunIterator class.
   }
@@ -131,8 +140,29 @@ public class RunLengthEncoding implements Iterable {
    *  @return the PixImage that this RunLengthEncoding encodes.
    */
   public PixImage toPixImage() {
-    // Replace the following line with your solution.
-    return new PixImage(1, 1);
+      // Replace the following line with your solution.
+      PixImage image = new PixImage(width, height);
+      RunIterator i = iterator();
+      int piximage_pointer_x = 0;
+      int piximage_pointer_y = 0;
+      int[] current_pixel = {0, 0, 0, 0};
+      int new_x;
+      int new_y;
+      while (i.hasNext()) {
+          int[] attributes = i.next();
+          for (int j = 0; j < attributes[0]; j++) {
+              image.setPixel(piximage_pointer_x, piximage_pointer_y, (short) attributes[1], (short) attributes[2],
+                      (short) attributes[3]);
+              new_x = image.nextPixelX(piximage_pointer_x, piximage_pointer_y);
+              new_y = image.nextPixelY(piximage_pointer_x, piximage_pointer_y);
+              piximage_pointer_x = new_x;
+              piximage_pointer_y = new_y;
+          }
+      }
+      current_pixel = i.next();
+      image.setPixel(piximage_pointer_x, piximage_pointer_y, (short) current_pixel[1], (short) current_pixel[2],
+              (short) current_pixel[3]);
+      return image;
   }
 
   /**
@@ -145,8 +175,23 @@ public class RunLengthEncoding implements Iterable {
    *  @return a String representation of this RunLengthEncoding.
    */
   public String toString() {
-    // Replace the following line with your solution.
-    return "";
+      // Replace the following line with your solution.
+      // It works!!
+      Run current_run = head.next;
+      String result = "[";
+      while (current_run.run_length != 0) {
+          if (current_run.next.run_length == 0) {
+              result += "[" + Integer.toString(current_run.run_length) + ", " + Integer.toString(current_run.red) + ", " +
+                      Integer.toString(current_run.green) + ", " + Integer.toString(current_run.blue) + "]";
+          } else {
+              result += "[" + Integer.toString(current_run.run_length) + ", " + Integer.toString(current_run.red) + ", " +
+                      Integer.toString(current_run.green) + ", " + Integer.toString(current_run.blue) + "], ";
+          }
+          current_run = current_run.next;
+      }
+
+      result += "]";
+      return result;
   }
 
 
@@ -164,10 +209,68 @@ public class RunLengthEncoding implements Iterable {
    *  @param image is the PixImage to run-length encode.
    */
   public RunLengthEncoding(PixImage image) {
-    // Your solution here, but you should probably leave the following line
-    // at the end.
-    check();
+      // Your solution here, but you should probably leave the following line
+      // at the end.
+      // It works!!
+      head = new Run(0, 0, 0, 0);
+      head.next = head;
+      head.prev = head;
+      width = image.getWidth();
+      height = image.getHeight();
+      int i = 0;
+      int j = 0;
+      while (j < image.getHeight() && i < image.getWidth()) {
+          int run_length = 1;
+          int red = image.getRed(i, j);
+          int green = image.getGreen(i, j);
+          int blue = image.getBlue(i, j);
+          int next_i = i;
+          int next_j = j;
+
+          if (i == image.getWidth()-1 && j != image.getHeight()-1) {
+              next_i = 0;
+              next_j++;
+          } else if (i == image.getWidth()-1 && j == image.getHeight()-1) {
+              addToEnd(run_length, red, green, blue);
+              break;
+          } else {
+              next_i++;
+          }
+
+          while (red == image.getRed(next_i, next_j) && green == image.getGreen(next_i, next_j) &&
+                  blue == image.getBlue(next_i, next_j)) {
+
+              run_length++;
+
+              if (next_i == image.getWidth()-1 && next_j != image.getHeight()-1) {
+                  next_i = 0;
+                  next_j++;
+              } else if (next_i == image.getWidth()-1 && next_j == image.getHeight()-1) {
+                  break;
+              } else {
+                  next_i++;
+              }
+          }
+
+          addToEnd(run_length, red, green, blue);
+
+          i = next_i;
+          j = next_j;
+      }
+  check();
   }
+
+   public void addToEnd(int run_length, int red, int green, int blue) {
+       if (size == 0) {
+           head.next = new Run(run_length, red, green, blue, head, head);
+           head.prev = head.next;
+           size++;
+       } else {
+           head.prev.next = new Run(run_length, red, green, blue, head, head.prev);
+           head.prev = head.prev.next;
+           size++;
+       }
+   }
 
   /**
    *  check() walks through the run-length encoding and prints an error message
@@ -175,7 +278,21 @@ public class RunLengthEncoding implements Iterable {
    *  all run lengths does not equal the number of pixels in the image.
    */
   public void check() {
-    // Your solution here.
+      // Your solution here.
+      Run current_run = head.next;
+      int total_run_lengths = current_run.run_length;
+      while (current_run.next.run_length != 0) {
+          total_run_lengths += current_run.next.run_length;
+          if (current_run.red == current_run.next.red && current_run.green == current_run.next.green &&
+                  current_run.blue == current_run.next.blue) {
+              System.out.println("ERROR!!! There is a mistake in your RunLengthEncoding constructor. Two " +
+                      "consecutive runs have the same RGB intensities!!");
+          }
+          current_run = current_run.next;
+      }
+      if (total_run_lengths != width * height) {
+          System.out.println("ERROR!!! The total run_length does not equal the number of pixels in this image!!");
+      }
   }
 
 
