@@ -129,6 +129,8 @@ public class PixImage {
   }
 
   public int nextPixelX(int x, int y) {
+      // This method returns the x-coordinate of the next pixel after a pixel at coordinate (x,y).
+      // If the parameter coordinate is the final coordinate, then this method returns -1.
       if (x == w-1 && y == h-1) {
           return -1;
       } else if (x == w-1) {
@@ -139,6 +141,8 @@ public class PixImage {
   }
 
   public int nextPixelY(int x, int y) {
+      // This method returns the y-coordinate of the next pixel after a pixel at coordinate (x,y).
+      // If the parameter coordinate is the final coordinate, then this method returns -1.
       if (x == w-1 && y == h-1) {
           return -1;
       } else if (x == w-1) {

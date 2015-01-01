@@ -314,9 +314,29 @@ public class RunLengthEncoding implements Iterable {
    *  @param blue the new blue intensity to store at coordinate (x, y).
    */
   public void setPixel(int x, int y, short red, short green, short blue) {
-    // Your solution here, but you should probably leave the following line
-    //   at the end.
-    check();
+      // Your solution here, but you should probably leave the following line
+      //   at the end.
+      // First find the Run that corresponds to this particular coordinate.
+      // 1) If the pixel is different than the RGB of the run it is stored in:
+      //    1) If the coordinate is the first pixel in the Run:
+      //            1) Check if the pixel matches the pixel on the run before. If it does:
+      //                    1) Increase the run length of the previous run
+      //                    2) Decrease the run length of this run
+      //                    3) Break
+      //    2) If the pixel is the last pixel in the Run:
+      //            1) Check if the pixel matches the pixel on the next run. If it does:
+      //                    1) Increase the run length of the next run
+      //                    2) Decrease the run length of this run
+      //                    3) Break
+      //    3) If the pixel is anywhere in the run AND it is different than pixels on either side of it:
+      //            1) Create a Run2 with run_length = run_length - this pixels place in the run_length and Run1
+      //                    with run_length = (this pixel's place in the Run) - 1 and Run3 with run_length = 1 with
+      //                    Run3 having a different RGB as the other two Runs. This new RGB should be the input RGB.
+      //            2) Link original_run.prev to Run1 to Run2 to Run3 to original_run.next effectively cutting out the
+      //                    old run.
+      // 2) If the pixel is the same RGB as the run it is stored in:
+      //    1) Don't do anything, end program.
+      check();
   }
 
 
