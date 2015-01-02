@@ -323,11 +323,13 @@ public class RunLengthEncoding implements Iterable {
       //                    1) Increase the run length of the previous run
       //                    2) Decrease the run length of this run
       //                    3) Break
+      //            2) Add New Run
       //    2) If the pixel is the last pixel in the Run:
       //            1) Check if the pixel matches the pixel on the next run. If it does:
       //                    1) Increase the run length of the next run
       //                    2) Decrease the run length of this run
       //                    3) Break
+      //            2) Add New Run
       //    3) If the pixel is anywhere in the run AND it is different than pixels on either side of it:
       //            1) Create a Run2 with run_length = run_length - this pixels place in the run_length and Run1
       //                    with run_length = (this pixel's place in the Run) - 1 and Run3 with run_length = 1 with
@@ -336,6 +338,71 @@ public class RunLengthEncoding implements Iterable {
       //                    old run.
       // 2) If the pixel is the same RGB as the run it is stored in:
       //    1) Don't do anything, end program.
+
+      int pixel_number;
+      pixel_number = (width * y) + (x + 1);
+      RunIterator i = iterator();
+      int counter = 0;
+      Run current_run = head;
+      System.out.println("The original RunLengthEncoding is: " + toString());
+      System.out.println("The pixel being added is: " + Integer.toString(x) + ", " + Integer.toString(y) + ", " +
+              Integer.toString(red) + ", " + Integer.toString(green) + ", " + Integer.toString(blue));
+      while (pixel_number > counter) {
+          if (i.hasNext()) {
+              counter += i.next()[0];
+          } else {
+              counter += i.next()[0];
+          }
+          current_run = current_run.next;
+      }
+      // Now, current_run should be pointing to the run which contains the pixel we need to change
+      if (current_run.red == red && current_run.green == green && current_run.blue == blue) {
+
+      } else if (current_run.run_length == 1) {
+          if (current_run.prev.red == red && current_run.prev.green == green && current_run.prev.blue == blue) {
+              current_run.prev.run_length++;
+              current_run.prev.next = current_run.next;
+              current_run.next.prev = current_run.prev;
+          } else if (current_run.next.red == red && current_run.next.green == green && current_run.next.blue == blue) {
+              current_run.next.run_length++;
+              current_run.prev.next = current_run.next;
+              current_run.next.prev = current_run.prev;
+          } else {
+              current_run.red = red;
+              current_run.green = green;
+              current_run.blue = blue;
+          }
+      } else if (counter - current_run.run_length + 1 == pixel_number) { // If pixel is first pixel in current_run
+          if (current_run.prev.run_length != 0 && current_run.prev.red == red && current_run.prev.green == green &&
+                  current_run.prev.blue == blue) {
+              current_run.prev.run_length += 1;
+              current_run.run_length -= 1;
+          } else {
+              current_run.prev.next = new Run(1, red, green, blue, current_run, current_run.prev);
+              current_run.prev = current_run.prev.next;
+              size++;
+              current_run.run_length -= 1;
+          }
+      } else if (counter == pixel_number) {  // If pixel is last pixel in current_run
+          if (current_run.next.red == red && current_run.next.green == green && current_run.next.blue == blue) {
+              current_run.next.run_length += 1;
+              current_run.run_length -= 1;
+          } else {
+              current_run.next.prev = new Run(1, red, green, blue, current_run.next, current_run);
+              current_run.next = current_run.next.prev;
+              size++;
+              current_run.run_length -= 1;
+          }
+      } else {
+          current_run.prev.next = new Run(current_run.run_length - (counter - pixel_number) - 1, current_run.red,
+                  current_run.green, current_run.blue);
+          current_run.prev.next.prev = current_run.prev;
+          current_run.prev.next.next = new Run(1, red, green, blue, null, current_run.prev.next);
+          current_run.prev.next.next.next = new Run (counter - pixel_number, current_run.red, current_run.green,
+                  current_run.blue, current_run.next, current_run.prev.next.next);
+          size += 2;
+      }
+      System.out.println("The result is: " + toString());
       check();
   }
 
