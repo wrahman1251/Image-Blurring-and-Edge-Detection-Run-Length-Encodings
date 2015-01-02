@@ -344,9 +344,6 @@ public class RunLengthEncoding implements Iterable {
       RunIterator i = iterator();
       int counter = 0;
       Run current_run = head;
-      System.out.println("The original RunLengthEncoding is: " + toString());
-      System.out.println("The pixel being added is: " + Integer.toString(x) + ", " + Integer.toString(y) + ", " +
-              Integer.toString(red) + ", " + Integer.toString(green) + ", " + Integer.toString(blue));
       while (pixel_number > counter) {
           if (i.hasNext()) {
               counter += i.next()[0];
@@ -363,10 +360,26 @@ public class RunLengthEncoding implements Iterable {
               current_run.prev.run_length++;
               current_run.prev.next = current_run.next;
               current_run.next.prev = current_run.prev;
+              current_run = current_run.prev;
+              if (current_run.red == current_run.next.red && current_run.green == current_run.next.green &&
+                      current_run.blue == current_run.next.blue) {
+                  current_run.run_length += current_run.next.run_length;
+                  current_run.next.next.prev = current_run;
+                  current_run.next = current_run.next.next;
+                  size--;
+              }
           } else if (current_run.next.red == red && current_run.next.green == green && current_run.next.blue == blue) {
               current_run.next.run_length++;
               current_run.prev.next = current_run.next;
               current_run.next.prev = current_run.prev;
+              current_run = current_run.next;
+              if (current_run.red == current_run.prev.red && current_run.green == current_run.prev.green &&
+                      current_run.blue == current_run.prev.blue) {
+                  current_run.run_length += current_run.prev.run_length;
+                  current_run.prev.prev.next = current_run;
+                  current_run.prev = current_run.prev.prev;
+                  size--;
+              }
           } else {
               current_run.red = red;
               current_run.green = green;
@@ -402,7 +415,6 @@ public class RunLengthEncoding implements Iterable {
                   current_run.blue, current_run.next, current_run.prev.next.next);
           size += 2;
       }
-      System.out.println("The result is: " + toString());
       check();
   }
 
