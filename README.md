@@ -1,5 +1,6 @@
 Image-Blurring-and-Edge-Detection-Run-Length-Encodings
 ======================================================
+UC-Berkeley CS-61B: Data Structures/Algorithms Course. Project 1.
 
 In this project I implemented two simple image processing operations on color images:  blurring and edge detection. 
 I used libraries to read and write files in the TIFF image format.  One option in TIFF files is that they can be
